@@ -23,11 +23,12 @@ def limpar_nome_arquivo(nome_arquivo):
     return nome_arquivo
 
 print("                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ")
+
 def main():
 
     print(" " * 50000 + "\u001b[92m               WEhaveLOGIN\u001b[0m");
     print(" " * 500)
-    pasta_db = ("/sdcard/WEhaveLOGIN")
+    pasta_db = ("/sdcard/WEhaveLOGIN/")
     
     if not os.path.isdir(pasta_db):
         print(f"\u001b[35m The command '{pasta_db}' does not exist\u001b[0m")
@@ -65,7 +66,10 @@ def main():
         print("\u001b[35mWe didn't find anything.\u001b[0m")
     else:
         print(f"\u001b[35mLogins found: {total_linhas_encontradas}, you will find it on your folder\u001b[0m")
+        print("Relevant lines:")
+        for linha in linhas_relevantes:
+            print(linha)
 
 if __name__ == "__main__":
     main()
-
+    
