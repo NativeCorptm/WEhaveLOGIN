@@ -3,72 +3,66 @@ import time
 from tqdm import tqdm
 import urllib.parse
 
-def buscar_e_escrever_linhas_com_palavra_chave(nome_arquivo, palavra_chave):
-    linhas_relevantes = []
-    erros_decodificacao = 0
-    with open(nome_arquivo, 'rb') as arquivo:
-        for linha_bytes in arquivo:
+def search_and_write_lines_with_keyword(file_name, keyword):
+    relevant_content = ""  # Inizializziamo una stringa vuota per memorizzare il contenuto del file
+    decoding_errors = 0
+    with open(file_name, 'r', encoding='utf-8') as file:
+        for row in file:  # Rinominiamo la variabile 'line' in 'row'
             try:
-                linha = linha_bytes.decode('utf-8')
-                if palavra_chave in linha:
-                    linhas_relevantes.append(linha.strip())
+                if keyword in row:  # Rinominiamo la variabile 'line' in 'row'
+                    relevant_content += row.strip() + "\n"  # Aggiungiamo la riga al contenuto rilevante
             except UnicodeDecodeError:
-                erros_decodificacao += 1
-    return linhas_relevantes, erros_decodificacao
+                decoding_errors += 1
+    return relevant_content, decoding_errors
 
-def limpar_nome_arquivo(nome_arquivo):
-    caracteres_invalidos = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
-    for char in caracteres_invalidos:
-        nome_arquivo = nome_arquivo.replace(char, '_')
-    return nome_arquivo
+def clean_file_name(file_name):
+    invalid_characters = ['/', '\\', ':', '*', '?', '"', '<', '>', '|']
+    for char in invalid_characters:
+        file_name = file_name.replace(char, '_')
+    return file_name
 
 print("                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ")
 
 def main():
-
     print(" " * 50000 + "\u001b[92m               WEhaveLOGIN\u001b[0m");
     print(" " * 500)
-    pasta_db = ("/sdcard/WEhaveLOGIN/")
+    db_folder = ("/sdcard/WEhaveLOGIN/")
     
-    if not os.path.isdir(pasta_db):
-        print(f"\u001b[35m The command '{pasta_db}' does not exist\u001b[0m")
+    if not os.path.isdir(db_folder):
+        print(f"\u001b[35m The command '{db_folder}' does not exist\u001b[0m")
         return
 
-    palavra_chave = input("\u001b[35m Type the site or URL:\u001b[0m");print(" " * 50000)
-    palavra_chave_encoded = urllib.parse.quote(palavra_chave)
+    keyword = input("\u001b[35m Type the site or URL:\u001b[0m");print(" " * 50000)
+    encoded_keyword = urllib.parse.quote(keyword)
 
-    nome_arquivo_saida = f" {limpar_nome_arquivo(palavra_chave_encoded)}.txt"
+    output_file_name = f" {clean_file_name(encoded_keyword)}.txt"
+    output_file_path = os.path.join(db_folder, output_file_name)
 
-    arquivos_txt = [arquivo for arquivo in os.listdir(pasta_db) if arquivo.endswith('.txt')]
+    txt_files = [file for file in os.listdir(db_folder) if file.endswith('.txt')]
 
-    if not arquivos_txt:
-        print(f"\u001b[35mWe found nothing '{pasta_db}'.\u001b[0m")
+    if not txt_files:
+        print(f"\u001b[35mWe found nothing '{db_folder}'.\u001b[0m")
         return
         
- 
-    with tqdm(total=len(arquivos_txt), desc="") as progresso_barra:
-        total_linhas_encontradas = 0
-        total_erros_decodificacao = 0
-        with open(nome_arquivo_saida, 'w') as arquivo_saida:
-            for arquivo_txt in arquivos_txt:
-                caminho_arquivo = os.path.join(pasta_db, arquivo_txt)
-                linhas_relevantes, erros_decodificacao = buscar_e_escrever_linhas_com_palavra_chave(caminho_arquivo, palavra_chave)
-                total_linhas_encontradas += len(linhas_relevantes)
-                total_erros_decodificacao += erros_decodificacao                
-                if linhas_relevantes:
-                    arquivo_saida.write(f"\n")
-                    arquivo_saida.writelines("\n".join(linhas_relevantes))
-                    arquivo_saida.write("\n\n")
-                progresso_barra.update(1)
+    with tqdm(total=len(txt_files), desc="") as progress_bar:
+        total_lines_found = 0
+        total_decoding_errors = 0
+        with open(output_file_path, 'w') as output_file:  # Modifica qui per salvare il file nella directory specificata
+            for txt_file in txt_files:
+                file_path = os.path.join(db_folder, txt_file)
+                relevant_content, decoding_errors = search_and_write_lines_with_keyword(file_path, keyword)
+                total_lines_found += len(relevant_content.splitlines())  # Aggiorniamo il conteggio delle righe rilevanti
+                total_decoding_errors += decoding_errors
+                if relevant_content:
+                    output_file.write(relevant_content)  # Scriviamo il contenuto rilevante direttamente nel file
+                    output_file.write("\n\n")
+                progress_bar.update(1)
                 time.sleep(0.1)
 
-    if total_linhas_encontradas == 0:
+    if total_lines_found == 0:
         print("\u001b[35mWe didn't find anything.\u001b[0m")
     else:
-        print(f"\u001b[35mLogins found: {total_linhas_encontradas}, you will find it on your folder\u001b[0m")
-        print("Relevant lines:")
-        for linha in linhas_relevantes:
-            print(linha)
+        print(f"\u001b[35mLogins found: {total_lines_found}, you will find it on your folder\u001b[0m")
 
 if __name__ == "__main__":
     main()
